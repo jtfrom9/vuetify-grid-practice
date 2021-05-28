@@ -1,26 +1,105 @@
 <template>
   <div>
-    <v-container> </v-container>
-    <h3>row align -> flexbox align-items</h3>
-    <!-- mb-6 = margin bottom -->
-    <v-container v-for="align in align_values" :key="align">
-      <!-- v-rowは、heightを持っていない。 -->
-      <v-row :align="align" no-gutters style="height: 100px">
+    <Headline title="v-row justify">
+      <v-container fluid>
+        <v-row align="center">
+          <v-col cols="2" class="pa-0">
+            <v-checkbox label="fluid" v-model="fluid" hide-details class="ma-0"></v-checkbox>
+          </v-col>
+          <v-col cols="2" class="pa-0">
+            <v-select
+              :items="valign_item_values"
+              label="v-row align"
+              v-model="row_test_row_align"
+              hide-details
+            ></v-select>
+          </v-col>
+          <v-col cols="3" class="pa-0">
+            <v-slider
+              label="row height"
+              v-model="row_test_row_height"
+              hide-details
+              max="300"
+              min="10"
+              step="10"
+              thumb-label
+            ></v-slider>
+          </v-col>
+        </v-row>
+      </v-container>
+    </Headline>
+    <v-container :fluid="fluid" class="container-background">
+      <v-row v-for="justify in vjustify_values" :key="justify">
+        <v-col cols="2" class="inner" align-self="center">
+          {{ justify }}
+        </v-col>
+        <v-col :style="{ height: `${row_test_row_height}px` }" class="pa-0 d-flex">
+          <v-container fluid class="d-flex">
+            <v-row :justify="justify" class="flex-grow-1" :align="row_test_row_align">
+              <v-col cols="1" class="pa-0 d-flex">
+                <v-card class="flex-grow-1 text-center"> cols=1 </v-card>
+              </v-col>
+              <v-col cols="2" class="pa-0 d-flex">
+                <v-card class="flex-grow-1 text-center"> cols=2 </v-card>
+              </v-col>
+              <v-col cols="3" class="pa-0 d-flex">
+                <v-card class="flex-grow-1 text-center"> cols=3 </v-card>
+              </v-col>
+              <v-col cols="4" class="pa-0 d-flex">
+                <v-card class="flex-grow-1 text-center"> cols=4 </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-col>
+      </v-row>
+
+      <!--
+        <v-row
+        v-for="align in valign_item_values"
+        :key="align"
+        :align="align"
+        no-gutters
+        style="height: 100px"
+      >
         <v-col v-for="c in colors" :key="c">
-          <!-- v-cardはheightがあるけど、結局styleになるだけ -->
           <v-card :color="c" outlined tile height="30px"> row :align={{ align }} </v-card>
         </v-col>
       </v-row>
+      -->
     </v-container>
 
-    <h3>col align-self -> flexbox align-self</h3>
-    <v-container class="grey lighten-1">
-      <v-row no-gutters style="height: 300px">
-        <v-col v-for="align in alignself_values" :key="align" :align-self="align">
-          <!-- <v-card class="pa-2" outlined tile> {{ align }} </v-card> -->
-          <v-card class="pa-2" outlined tile>
-            {{ align }}
-          </v-card>
+    <Headline title="v-col align-self">
+      <v-container fluid>
+        <v-row align="center">
+          <v-col cols="2" class="pa-0">
+            <v-select
+              :items="valign_item_values"
+              label="v-row align"
+              v-model="col_test_row_align"
+              hide-details
+            ></v-select>
+          </v-col>
+          <v-col cols="3" class="pa-0">
+            <v-slider
+              label="row height"
+              v-model="col_test_row_height"
+              hide-details
+              max="600"
+              min="10"
+              step="10"
+              thumb-label
+            ></v-slider>
+          </v-col>
+        </v-row>
+      </v-container>
+    </Headline>
+    <v-container :fluid="fluid" class="container-background">
+      <v-row no-gutters :style="{ height: `${col_test_row_height}px` }" :align="col_test_row_align">
+        <v-col v-for="align in valign_self_values" :key="align" :align-self="align" class="inner d-flex align-stretch">
+          <v-card class="flex-grow-1" :style="{ textAlign: 'center' }">
+            v-col align={{ align }} ( We the People of the United States, in Order to form a more perfect Union,
+            establish Justice, insure domestic )</v-card
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -43,18 +122,18 @@
             <v-select
               label="justify-content"
               v-model="outer_justify"
-              :items="outer_justify_values"
+              :items="flex_justify_values"
               hide-details
             ></v-select>
           </v-col>
           <v-col cols="2" class="pa-0">
-            <v-select label="align-items" v-model="outer_align" :items="outer_align_values" hide-details></v-select>
+            <v-select label="align-items" v-model="outer_align" :items="flex_align_item_values" hide-details></v-select>
           </v-col>
           <v-col cols="2" class="pa-0">
             <v-select
               label="align-self(3rd)"
               v-model="inner3_align_self"
-              :items="inner3_align_self_values"
+              :items="flex_align_self_values"
               hide-details
             ></v-select>
           </v-col>
@@ -91,29 +170,24 @@
 import { Vue, Component } from 'vue-property-decorator';
 import Headline from './Headline.vue';
 
-type JustifyContentValues = 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
-type AlignItemValues = 'stretch' | 'flex-start' | 'flex-end' | 'center' | 'baseline';
-type AlignSelfValues = 'auto' | AlignItemValues;
+type FlexJustifyContentValues = 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
+type FlexAlignItemValues = 'stretch' | 'flex-start' | 'flex-end' | 'center' | 'baseline';
+type FlexAlignSelfValues = 'auto' | FlexAlignItemValues;
+type VAlignItemValues = 'stretch' | 'start' | 'end' | 'center' | 'baseline';
+type VAlignSelfValues = 'auto' | VAlignItemValues;
+type VJustifyValues = 'start' | 'center' | 'end' | 'space-between' | 'space-around';
 
 @Component({ components: { Headline } })
 export default class GridPractice extends Vue {
-  private align_values = ['start', 'center', 'end', 'baseline', 'stretch'];
-  private alignself_values = ['start', 'center', 'end', 'auto', 'baseline', 'stretch'];
-  private colors = ['red', 'blue', 'green'];
-
-  private inner_width = 300;
-  private outer_justify_values: JustifyContentValues[] = [
+  private flex_justify_values: FlexJustifyContentValues[] = [
     'center',
     'flex-start',
     'flex-end',
     'space-between',
     'space-around',
   ];
-  private outer_justify: JustifyContentValues = 'center';
-  private outer_align_values: AlignItemValues[] = ['stretch', 'flex-start', 'flex-end', 'center', 'baseline'];
-  private outer_align = 'center';
-
-  private inner3_align_self_values: AlignSelfValues[] = [
+  private flex_align_item_values: FlexAlignItemValues[] = ['stretch', 'flex-start', 'flex-end', 'center', 'baseline'];
+  private flex_align_self_values: FlexAlignSelfValues[] = [
     'stretch',
     'flex-start',
     'flex-end',
@@ -121,6 +195,22 @@ export default class GridPractice extends Vue {
     'baseline',
     'auto',
   ];
+  private valign_item_values: VAlignItemValues[] = ['stretch', 'start', 'end', 'center', 'baseline'];
+  private valign_self_values: VAlignSelfValues[] = ['auto', 'stretch', 'start', 'end', 'center', 'baseline'];
+  private vjustify_values: VJustifyValues[] = ['start', 'center', 'end', 'space-between', 'space-around'];
+
+  private fluid = true;
+  private colors = ['red', 'blue', 'green'];
+
+  private row_test_row_align = 'center';
+  private row_test_row_height = 100;
+  private col_test_row_align = 'stretch';
+  private col_test_row_height = 300;
+
+  private inner_width = 300;
+  private outer_justify: FlexJustifyContentValues = 'center';
+  private outer_align = 'center';
+
   private inner3_align_self = 'auto';
 }
 </script>
@@ -132,7 +222,7 @@ export default class GridPractice extends Vue {
   margin: 0 auto;
 }
 .inner {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.3) !important;
   border: 1px solid #fff;
 }
 </style>

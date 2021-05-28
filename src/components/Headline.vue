@@ -1,12 +1,10 @@
 <template>
-  <div class="flex">
+  <div class="flex pa-4">
     <h3>
       {{ title }}
     </h3>
     <div class="marginleft">
-      <slot>
-        <span>hoge</span>
-      </slot>
+      <slot> </slot>
     </div>
   </div>
 </template>
